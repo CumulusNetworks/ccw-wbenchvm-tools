@@ -1,6 +1,6 @@
 ## About
 
-Various tools used with in the Cumulus workbench to manage external services and facilities.
+Various tools used within the Cumulus workbench to improve productivity and work with external devices (such as console servers and IP PDUs).
 
 ## Tools
 
