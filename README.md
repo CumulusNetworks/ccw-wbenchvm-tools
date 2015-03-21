@@ -32,7 +32,7 @@ The scripts are specific to the workbench environment, but may provide a basis t
 
 ### Within the Cumulus Workbench
 
-In the [workbench](http://cumulusnetworks.com/cumulus-workbench/) during the setup process this git repo is cloned to /usr/local/cumulus/bin
+In the [workbench](http://cumulusnetworks.com/cumulus-workbench/) during the [setup and VM provisioning process](https://github.com/CumulusNetworks/ccw-wbenchvm-ansible) this git repo is cloned to /usr/local/cumulus/bin
 
 ---
 
