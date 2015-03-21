@@ -10,10 +10,12 @@ Various tools used with in the Cumulus workbench to manage external services and
 * cw-pxehelper
 * cw-swpower
 
+Tools are made available here for transparency and to provide a better understanding of how the workbench environment works.
+
 ## License
 GPL v2
 
-##Development
+## Development
 
 1. Fork it.
 2. Create your feature branch (`git checkout -b my-new-feature`).
@@ -21,6 +23,16 @@ GPL v2
 4. Push to the branch (`git push origin my-new-feature`).
 5. Create new Pull Request.
 
+
+## Usage
+
+### In your own network
+
+The scripts are specific to the workbench environment, but may provide a basis to assist with automation in your networks. Tools such as cw-pxehelper are reasonably generic and just manage MAC associations for pxelinux.
+
+### Within the Cumulus Workbench
+
+In the [workbench](http://cumulusnetworks.com/cumulus-workbench/) during the setup process this git repo is cloned to /usr/local/cumulus/bin
 
 ---
 
