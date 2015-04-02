@@ -5,9 +5,9 @@ import requests, optparse, sys, json
 def main():
    wbench_json = json.loads(file("/var/www/wbench.json").read())
 
-   USER = wbench_json["user"]
-   APIKEY = wbench_json["apikey"]
-   switcharr = wbench_json["switcharr"]
+   USER = wbench_json["reservation"]["workbench"]["user"]
+   APIKEY = wbench_json["reservation"["workbench"]["apikey"]
+   switcharr = wbench_json["reservation"]["workbench"]["switcharr"]
 
 
    (options, args) = parser.parse_args()
