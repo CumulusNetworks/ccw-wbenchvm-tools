@@ -4,6 +4,10 @@ import requests, optparse, sys, json
 
 def main():
    wbench_json = json.loads(file("/var/www/wbench.json").read())
+   usage = "usage: %prog [options]"
+   parser = optparse.OptionParser(usage=usage)
+   parser.add_option("-s", "--switch", help="Comma separated switch names. eg leaf1,spine1", dest="switches")
+   parser.add_option("-a", "--all", action="store_true", help="All switches", dest="all")
 
    USER = wbench_json["reservation"]["workbench"]["user"]
    APIKEY = wbench_json["reservation"]["workbench"]["api_key"]
