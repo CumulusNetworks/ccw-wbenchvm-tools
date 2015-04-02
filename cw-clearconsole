@@ -6,8 +6,8 @@ def main():
    wbench_json = json.loads(file("/var/www/wbench.json").read())
 
    USER = wbench_json["reservation"]["workbench"]["user"]
-   APIKEY = wbench_json["reservation"["workbench"]["api_key"]
-   APIURL = wbench_json["reservation"["workbench"]["api_url"]
+   APIKEY = wbench_json["reservation"]["workbench"]["api_key"]
+   APIURL = wbench_json["reservation"]["workbench"]["api_url"]
    switcharr = wbench_json["reservation"]["workbench"]["switcharr"]
 
 
