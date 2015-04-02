@@ -6,7 +6,8 @@ def main():
    wbench_json = json.loads(file("/var/www/wbench.json").read())
 
    USER = wbench_json["reservation"]["workbench"]["user"]
-   APIKEY = wbench_json["reservation"["workbench"]["apikey"]
+   APIKEY = wbench_json["reservation"["workbench"]["api_key"]
+   APIURL = wbench_json["reservation"["workbench"]["api_url"]
    switcharr = wbench_json["reservation"]["workbench"]["switcharr"]
 
 
@@ -52,7 +53,7 @@ def main():
       data = {'pcycle':'3'}
    headers = {'content-type': 'application/json'}
    for sw in swlist:
-      url = "https://100.64.1.12:8008/api/cw/switch/%s/" % switcharr[sw]
+      url = APIURL+"cw/switch/%s/" % switcharr[sw]
       params = {'username':USER, 'api_key':APIKEY, 'switch':switcharr[sw]}
       r = requests.put(url, params=params, data=json.dumps(data), headers=headers)
       if not r.status_code == 204:
