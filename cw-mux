@@ -31,7 +31,7 @@ while getopts "mhsl" arg; do
         echo "     -m        Enable mouse mode"
         echo "     -s        Show spine windows only"
         echo "     -l        Show leaf windows only"
-	exit 0
+        exit 0
         ;;
     m)
         mouse=1
