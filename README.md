@@ -1,6 +1,6 @@
 ## About
 
-Various tools used within the Cumulus workbench to improve productivity and work with external devices (such as console servers and IP PDUs).
+Various tools used within the [Cumulus workbench](http://cumulusnetworks.com/cumulus-workbench/) to improve productivity and work with external devices (such as console servers and IP PDUs).
 
 ## Tools
 
