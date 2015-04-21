@@ -91,7 +91,7 @@ def main():
     parser = argparse.ArgumentParser(description='Cumulus workbench PXE installer helper')
     parser.add_argument('-s', help='server name',action='store',dest='server',required=True).completer = servercompleter
     parser.add_argument('-o', help='operating system reference',action='store',dest='os',required=True).completer = oscompleter
-    parser.add_argument('-n', help='IPMI provision now',action='store_true',dest='now',required=False).
+    parser.add_argument('-n', help='IPMI provision now',action='store_true',dest='now',required=False)
 
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
