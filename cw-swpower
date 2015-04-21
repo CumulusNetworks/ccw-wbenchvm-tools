@@ -1,11 +1,28 @@
 #!/usr/bin/python
 
-import requests, optparse, sys, json
+import requests, argparse, argcomplete, sys, json
+
+WBENCHCFG = "/var/www/wbench.json"
+
+def readconfig():
+    if os.path.isfile(WBENCHCFG) is False:
+        print "ERROR: Workbench JSON not found"
+        exit(1)
+    cfgfile = open(WBENCHCFG,'r')
+    try:
+        cfg = json.load(cfgfile)
+    except:
+        print "ERROR: Unable to parse workbench JSON"
+        exit(1)
+    cfgfile.close()
+    return cfg
+
 
 def main():
-   wbench_json = json.loads(file("/var/www/wbench.json").read())
+
    usage = "usage: %prog [options]"
    parser = optparse.OptionParser(usage=usage)
+   parser.add_option("-o", "--operation", help="off,on,reset", dest="operation")
    parser.add_option("-s", "--switch", help="Comma separated switch names. eg leaf1,spine1", dest="switches")
    parser.add_option("-a", "--all", action="store_true", help="All switches", dest="all")
 
@@ -14,12 +31,7 @@ def main():
    APIURL = wbench_json["reservation"]["workbench"]["api_url"]
    switcharr = wbench_json["reservation"]["workbench"]["switcharr"]
 
-
-   usage = "usage: %prog [options]"
-   parser = optparse.OptionParser(usage=usage)
-   parser.add_option("-o", "--operation", help="off,on,reset", dest="operation")
-   parser.add_option("-s", "--switch", help="Comma separated switch names. eg leaf1,spine1", dest="switches")
-   parser.add_option("-a", "--all", action="store_true", help="All switches", dest="all")
+   wbench_json = readconfig()
 
    (options, args) = parser.parse_args()
    operation = options.operation
@@ -41,7 +53,7 @@ def main():
          sys.exit(1)
       else:
          swlist = switcharr.keys()
-   
+
    if switches:
       swlist = filter(len, switches.split(','))
       for sw in swlist:
@@ -67,4 +79,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

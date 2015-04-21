@@ -1,52 +1,79 @@
 #!/usr/bin/python
 
-import requests, optparse, sys, json
+import requests, argparse, argcomplete, sys, json
+
+WBENCHCFG = "/var/www/wbench.json"
+def readconfig():
+    if os.path.isfile(WBENCHCFG) is False:
+        print "ERROR: Workbench JSON not found"
+        exit(1)
+    cfgfile = open(WBENCHCFG,'r')
+    try:
+        cfg = json.load(cfgfile)
+    except:
+        print "ERROR: Unable to parse workbench JSON"
+        exit(1)
+    cfgfile.close()
+    return cfg
+
+def switchcompleter(prefix, **kwargs):
+    cfg = readconfig()
+    cfgwb = cfg["reservation"]["workbench"]
+    if "servers" not in cfgwb:
+        print "ERROR: No switches attached to this workbench"
+        exit(1)
+    cfgservers = cfgwb["switches"]
+    if len(cfgservers) == 0:
+        print "ERROR: No switches attached to this workbench"
+        exit(1)
+    vprefix = prefix.split(',')[-1]
+    return (v for v in cfgwb["switches"] if v.startswith(vprefix))
 
 def main():
-   wbench_json = json.loads(file("/var/www/wbench.json").read())
-   usage = "usage: %prog [options]"
-   parser = optparse.OptionParser(usage=usage)
-   parser.add_option("-s", "--switch", help="Comma separated switch names. eg leaf1,spine1", dest="switches")
-   parser.add_option("-a", "--all", action="store_true", help="All switches", dest="all")
+    parser = argparse.ArgumentParser(description='Clear consoles')
+    parser.add_argument('-s', '--switch', help='Comma seperated switch names, eg leaf1,spine1',action='store',dest='switches',required=False).completer = switchcompleter
+    parser.add_argument('-a', '--all', help='All switches',action='store_true',dest='all',required=False)
 
-   USER = wbench_json["reservation"]["workbench"]["user"]
-   APIKEY = wbench_json["reservation"]["workbench"]["api_key"]
-   APIURL = wbench_json["reservation"]["workbench"]["api_url"]
-   switcharr = wbench_json["reservation"]["workbench"]["switcharr"]
+    argcomplete.autocomplete(parser)
+    args = parser.parse_args()
 
+    wbench_json = readconfig()
+    USER = wbench_json["reservation"]["workbench"]["user"]
+    APIKEY = wbench_json["reservation"]["workbench"]["api_key"]
+    APIURL = wbench_json["reservation"]["workbench"]["api_url"]
+    switcharr = wbench_json["reservation"]["workbench"]["switcharr"]
 
-   (options, args) = parser.parse_args()
-   switches  = options.switches
-   all = options.all
+    (options, args) = parser.parse_args()
+    switches  = options.switches
+    all = options.all
 
-   if not all and not switches:
-      print "Please specify the switches"
-      sys.exit(1)
-   if all:
-      if switches:
-         print "-a and -s options cannot be together"
-         sys.exit(1)
-      else:
-         swlist = switcharr.keys()
-   
-   if switches:
-      swlist = filter(len, switches.split(','))
-      for sw in swlist:
-         if not sw in switcharr.keys():
-            print "Unknown switch %s, valid values are %s" % (sw, switcharr.keys())
-            sys.exit(0)
+    if not all and not switches:
+        print "Please specify the switches"
+        sys.exit(1)
+    if all:
+        if switches:
+            print "-a and -s options cannot be together"
+            sys.exit(1)
+        else:
+            swlist = switcharr.keys()
 
-   data = {'clearconsole':'1'}
-   headers = {'content-type': 'application/json'}
-   for sw in swlist:
-      url = APIURL+"cw/switch/%s/" % switcharr[sw]
-      params = {'username':USER, 'api_key':APIKEY, 'switch':switcharr[sw]}
-      r = requests.put(url, params=params, data=json.dumps(data), headers=headers)
-      if not r.status_code == 204:
-         print "Error clearing console line for  %s. Status code: %s, Error %s" % (sw, r.status_code, r.content)
-      else:
-         print "Console line for switch %s cleared" % (sw)
+    if switches:
+        swlist = filter(len, switches.split(','))
+        for sw in swlist:
+            if not sw in switcharr.keys():
+                print "Unknown switch %s, valid values are %s" % (sw, switcharr.keys())
+                sys.exit(0)
+
+    data = {'clearconsole':'1'}
+    headers = {'content-type': 'application/json'}
+    for sw in swlist:
+        url = APIURL+"cw/switch/%s/" % switcharr[sw]
+        params = {'username':USER, 'api_key':APIKEY, 'switch':switcharr[sw]}
+        r = requests.put(url, params=params, data=json.dumps(data), headers=headers)
+        if not r.status_code == 204:
+            print "Error clearing console line for  %s. Status code: %s, Error %s" % (sw, r.status_code, r.content)
+        else:
+             print "Console line for switch %s cleared" % (sw)
 
 if __name__ == "__main__":
     main()
-
