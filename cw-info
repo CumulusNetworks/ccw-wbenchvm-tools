@@ -1,0 +1,68 @@
+#!/usr/bin/python
+
+import optparse, sys, json
+
+WBENCH_FILE = '/var/www/wbench.json'
+
+def main():
+  usage = "usage: %prog [options]"
+  parser = optparse.OptionParser(usage=usage)
+  parser.add_option('-r', '--reservation', action='store_true', help='show reservation details', dest='reserve')
+  parser.add_option('-w', '--workbench', action='store_true', help='show workbench details', dest='workbench')
+  parser.add_option('-s', '--switch', action='store_true', help='show switch details', dest='switch')
+  parser.add_option('-u', '--user', action='store_true', help='show user details', dest='user')
+  parser.add_option('-a', '--all', action='store_true', help='show all details', dest='all')
+
+  (options, args) = parser.parse_args()
+
+  if len([key for key, value in options.__dict__.items() if value != None]) < 1:
+    parser.print_help()
+    parser.error('wrong number of arguments')
+  
+  wbench_json = json.loads(file(WBENCH_FILE).read())
+
+  reservation_data = wbench_json['reservation']
+  workbench_data = reservation_data['workbench']
+  switch_data = workbench_data['switches']
+
+  if workbench_data['generation'] == 'legacy':
+    if options.reserve or options.all:
+      print("\nReservation")
+      print("\tCustomer: %s" % reservation_data['customer'])
+      print("\tEmail: %s" % reservation_data['customer_email'])
+      print("\tStart date: %s" % reservation_data['start_date'])
+      print("\tEnd date: %s" % reservation_data['end_date'])
+      print("\tReservation ID: %s" % reservation_data['id'])
+
+    if options.workbench or options.all:
+      print("\nWorkbench")
+      print("\tWorkbench ID: %s" % workbench_data['wbench_id'])
+      print("\tWorkbench class: %s" % workbench_data['wbench_class'])
+      print("\tTopology: %s" % workbench_data['wbench_class_base'])
+      print("\tSwitches: %s" % len(switch_data))
+      print("\tServers: %s" % len(workbench_data['servers']))
+
+    if options.switch or options.all:
+      print("\nSwitches")
+      for switch in switch_data:
+        print("\t%s" % switch)
+        print("\t\tPlatform: %s" % switch_data[switch]['platform'])
+        print("\t\tModel: %s" % switch_data[switch]['model'])
+        print("\t\tConsole: telnet console %s" % switch_data[switch]['console_muxport'])
+
+    if options.user or options.all:
+      print("\nUser")
+      print("\tWorkbench user: %s" % workbench_data['username'])
+      print("\tWorkbench password: %s" % workbench_data['password'])
+      print("\tHTTP")
+      print("\t\tServer: https://workbench.cumulusnetworks.com/wbench%s" % workbench_data['wbench_id'])
+      print("\tSSH")
+      print("\t\tSSH (via. jumpbox): ssh %s@workbench.cumulusnetworks.com" % workbench_data['username'])
+      print("\t\tSSH (port forward): ssh cumulus@workbench.cumulusnetworks.com -p %s" % workbench_data['sshport'])
+      print("\t\tSCP: scp -P %s myfile.txt cumulus@workbench.cumulusnetworks.com:." % workbench_data['sshport'])
+      print("\t\tSSH port: %s" % workbench_data['sshport'])
+  else:
+    print("CW-NG workbenches are not yet supported")
+
+if __name__ == "__main__":
+  main()
