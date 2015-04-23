@@ -9,6 +9,7 @@ Various tools used within the [Cumulus workbench](http://cumulusnetworks.com/cum
 * cw-mux-helper
 * cw-pxehelper
 * cw-swpower
+* cw-info
 
 Tools are made available here for transparency and to provide a better understanding of how the workbench environment works.
 
