@@ -3,7 +3,7 @@ UID=$(id -u)
 INSTALL_SH=$(readlink -f $0)
 INSTALL_DIR=$(dirname $INSTALL_SH)
 DEST="/usr/local/bin"
-BINARIES="cw-clearconsole cw-info cw-mux cw-swpower"
+BINARIES="cw-clearconsole cw-info cw-mux cw-mux-helper cw-pxehelper cw-swpower"
 
 if [ $UID -ne 0 ]
 then
