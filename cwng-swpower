@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+
+import requests, optparse, sys, json
+
+def main():
+   usage = "usage: %prog [options]"
+   parser = optparse.OptionParser(usage=usage)
+   parser.add_option("-o", "--operation", help="off,on,reset,reinstall" dest="operation")
+   parser.add_option("-s", "--switch", help="Comma separated switch/server names. eg leaf01,spine01,server01", dest="switches")
+   parser.add_option("-a", "--all", action="store_true", help="All switches", dest="all")
+
+   (options, args) = parser.parse_args()
+   operation = options.operation
+   switches  = options.switches
+   all = options.all
+   targets = []
+
+   if not operation:
+      print "Please specify an operation"
+      sys.exit(1)
+   if not operation in ['off', 'on', 'reset', 'reinstall']:
+      print "%s not a valid operation" % operation
+      sys.exit(1)
+   if not all and not switches:
+      print "Please specify the switches"
+      sys.exit(1)
+   if switches:
+      targets = switches.split(',')
+   if all:
+      if switches:
+         print "-a and -s options cannot be together"
+         sys.exit(1)
+      else:
+         targets = ["all"]
+   
+   for sw in targets:
+       r = requests.post("http://console.cwb.cumulusnetworks.com/workbench/%s/%s", sw, operation)
+       if r.status_code == 200:
+           print("Successfully sent %s to %s", operation, sw)
+       else:
+           print("Failed to send %s to %s", operation, sw)
+
+if __name__ == "__main__":
+    main()
+
