@@ -5,7 +5,7 @@ import requests, optparse, sys, json
 def main():
    usage = "usage: %prog [options]"
    parser = optparse.OptionParser(usage=usage)
-   parser.add_option("-o", "--operation", help="off,on,reset,reinstall" dest="operation")
+   parser.add_option("-o", "--operation", help="off,on,reset,reinstall", dest="operation")
    parser.add_option("-s", "--switch", help="Comma separated switch/server names. eg leaf01,spine01,server01", dest="switches")
    parser.add_option("-a", "--all", action="store_true", help="All switches", dest="all")
 
