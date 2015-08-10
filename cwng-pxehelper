@@ -1,0 +1,125 @@
+#!/usr/bin/env python
+
+#--------------------------------------------------------------------------
+#
+# Copyright 2014 Cumulus Networks, inc  all rights reserved
+#
+#--------------------------------------------------------------------------
+
+import argparse
+import json
+import os
+from shutil import *
+
+#
+# $ cw-pxehelper -s server1 -o esx55 -n
+#
+
+WBENCHCFG = "/var/www/wbench.json"
+PXECFGDIR = "/var/lib/tftpboot/pxe/pxelinux.cfg"
+
+def readconfig():
+    if os.path.isfile(WBENCHCFG) is False:
+        print "ERROR: Workbench JSON not found"
+        exit(1)
+    cfgfile = open(WBENCHCFG,'r')
+    try:
+        cfg = json.load(cfgfile)
+    except:
+        print "ERROR: Unable to parse workbench JSON"
+        exit(1)
+    cfgfile.close()
+    return cfg
+
+def pxeremovecopy(servername, servermac, pxecfgsrc):
+    pxemac = "01-" + servermac.replace(":","-").strip()
+    pxecfgdst = "%s/%s" % (PXECFGDIR, pxemac)
+    if os.path.isfile(pxecfgdst):
+        try:
+            os.remove(pxecfgdst)
+        except:
+            print "ERROR: Could not remove %s, are you root?" % (pxecfgdst)
+            exit(1)
+        print "* Removed existing config for %s / %s" % (servername, pxemac)
+
+    try:
+        copyfile(pxecfgsrc, pxecfgdst)
+    except:
+        print "ERROR: Could not copy PXELinux config, are you root?"
+        exit(1)
+    print "* Copied PXELinux config for %s / %s" % (servername, pxemac)
+    
+    return
+
+def ipmicmd(ipmiip, opts):
+    ipmiuser = "admin"
+    ipmipassword = "admin"
+    ipmicmd = "ipmitool -U %s -P %s -H %s" % (ipmiuser,ipmipassword,ipmiip)
+    cmd = "%s %s" % (ipmicmd, opts)
+    return os.popen(cmd).read()
+
+def main():
+
+    # cmd opts
+    parser = argparse.ArgumentParser(description='Cumulus workbench PXE installer helper')    
+    parser.add_argument('-s', help='server name',action='store',dest='server',required=True)
+    parser.add_argument('-o', help='operating system reference',action='store',dest='os',required=True)
+    parser.add_argument('-n', help='IPMI provision now',action='store_true',dest='now',required=False)
+    args = parser.parse_args()
+
+    # Find out IPMI IP address
+    cfg = readconfig()
+    serverdata = None
+    for m in cfg['topology']['mapping']:
+        if m['hostname'] == args.server:
+            serverdata = m
+    if serverdata is None:
+        print "ERROR: server '%s' not found in workbench" % (args.server)
+        exit(1)
+    ipmiip = serverdata.get('ipmiaddr', None)
+    if ipmiip is None:
+        print "ERROR: '%s' is not a server" % (args.server)
+        exit(1)
+    serverdata = None
+    for m in cfg['devices']:
+        if m['hostname'] == args.server:
+            serverdata = m
+    servermac = serverdata['device']['mac']
+
+    # pxe dir
+    if os.path.isdir(PXECFGDIR) is False:
+        print "ERROR: PXELinux dir '%s' missing" % (PXECFGDIR)
+        print "(try using sudo apt-get install cldemo-wbench-osinstaller-ubuntuserver-trusty)"
+        exit(1)
+
+    # check OS specified exists
+    pxecfgsrc = "%s/cfg-%s" % (PXECFGDIR, args.os)
+    if os.path.isfile(pxecfgsrc) is False:
+        print "ERROR: OS '%s' PXELinux cfg missing" % (args.os)
+        exit(1)
+
+    # try remove and copy
+    pxeremovecopy(args.server, servermac, pxecfgsrc)
+
+    # IPMI reboot and pxe first?
+    if args.now:
+        # TODO: maybe check IP responds
+        print "* Attempting IPMI (%s) PXE first and reboot" % (ipmiip)
+        status = ipmicmd(ipmiip, "chassis power status").strip().lower()
+        if status == "chassis power is on":
+            print "* Power is on, setting PXE boot and power cycling"
+            ipmicmd(ipmiip, "chassis bootdev pxe")
+            ipmicmd(ipmiip, "chassis power cycle")
+        elif status == "chassis power is off":
+            print "* Power is off, setting PXE boot and powering on"
+            ipmicmd(ipmiip, "chassis bootdev pxe")
+            ipmicmd(ipmiip, "chassis power on")
+        else:
+            print "ERROR: Unknown power state '%s'" % (status)
+            exit(1)
+    exit(0)
+
+
+if __name__ == '__main__':
+    main()
+
