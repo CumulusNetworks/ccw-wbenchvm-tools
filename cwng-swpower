@@ -34,11 +34,11 @@ def main():
          targets = ["all"]
    
    for sw in targets:
-       r = requests.post("http://console.cwb.cumulusnetworks.com/workbench/%s/%s", sw, operation)
+       r = requests.post("http://console.cwb.cumulusnetworks.com/workbench/%s/%s"%(sw, operation))
        if r.status_code == 200:
-           print("Successfully sent %s to %s", operation, sw)
+           print("Successfully sent %s to %s"%(operation, sw))
        else:
-           print("Failed to send %s to %s", operation, sw)
+           print("Failed to send %s to %s"%(operation, sw))
 
 if __name__ == "__main__":
     main()
