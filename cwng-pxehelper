@@ -84,7 +84,7 @@ def main():
     for m in cfg['devices']:
         if m['hostname'] == args.server:
             serverdata = m
-    servermac = serverdata['device']['mac']
+    servermac = serverdata['device']['mac_address']
 
     # pxe dir
     if os.path.isdir(PXECFGDIR) is False:
