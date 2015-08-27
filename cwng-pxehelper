@@ -68,7 +68,7 @@ def main():
     args = parser.parse_args()
 
     # Find out IPMI IP address
-    cfg = readconfig()
+    cfg = readconfig()['reservation']['workbench']
     serverdata = None
     for m in cfg['topology']['mapping']:
         if m['hostname'] == args.server:
