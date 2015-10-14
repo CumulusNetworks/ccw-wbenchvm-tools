@@ -1,4 +1,3 @@
-cumulus@wbench:~$ cat ccw-wbenchvm-tools/cw-mux-helper 
 #!/usr/bin/env bash
 
 #--------------------------------------------------------------------------
