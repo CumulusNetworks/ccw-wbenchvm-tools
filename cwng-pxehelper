@@ -54,7 +54,7 @@ def pxeremovecopy(servername, servermac, pxecfgsrc):
 def ipmicmd(ipmiip, opts):
     ipmiuser = "admin"
     ipmipassword = "admin"
-    ipmicmd = "ipmitool -U %s -P %s -H %s" % (ipmiuser,ipmipassword,ipmiip)
+    ipmicmd = "ipmitool -I lanplus -U %s -P %s -H %s" % (ipmiuser,ipmipassword,ipmiip)
     cmd = "%s %s" % (ipmicmd, opts)
     return os.popen(cmd).read()
 
